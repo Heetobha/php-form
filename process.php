@@ -53,7 +53,38 @@ if ($conn->connect_error) {
                 
                 // If the insertion is successful
                 if ($conn->query($add)) {
-                    $message = $name . ", your attendance has been marked!";
+                    // Generate the PDF file
+                    require_once('../TCPDF/tcpdf.php');
+
+                    // Load the invoice template
+                    $invoiceTemplate = file_get_contents('template.html');
+
+                    // Replace placeholders with submitted data
+                    $invoiceTemplate = str_replace('{{name}}', $name, $invoiceTemplate);
+                    $invoiceTemplate = str_replace('{{email}}', $email, $invoiceTemplate);
+                    $invoiceTemplate = str_replace('{{cms}}', $cms, $invoiceTemplate);
+
+                    $pdf = new TCPDF();
+                    $pdf->AddPage();
+                    $pdf->writeHTML($invoiceTemplate);
+
+                    ob_clean(); // Clean the output buffer
+                    
+                    $pdfContent = $pdf->Output('', 'S'); // Get the PDF content as a string
+
+                    $message = $name . ", your invoice has been generated!";
+
+                    // Prompt the user to download the file
+                    echo '
+                    <script>
+                        if (confirm("Do you want to download the invoice?")) {
+                            var link = document.createElement("a");
+                            link.href = "data:application/pdf;base64,' . base64_encode($pdfContent) . '";
+                            link.download = "invoice.pdf";
+                            link.click();
+                        }
+                    </script>
+                    ';
                 }
                 // If there is a technical error
                 else {
@@ -64,6 +95,7 @@ if ($conn->connect_error) {
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

@@ -1,5 +1,4 @@
 <?php
-
 // Set parameters for database connection
 $servername = "localhost";
 $username = "root";
@@ -15,6 +14,7 @@ if ($conn->connect_error) {
     die("Database connection failed: " . $conn->connect_error);
 } else {
     $message = ""; // Variable to hold success message when the form is submitted
+    $pdfContent = ""; // Variable to hold the PDF content
 
     // Check if the form is submitted using the POST method
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -44,7 +44,7 @@ if ($conn->connect_error) {
             // If the user already exists
             if ($result->num_rows > 0) {
                 $row = $result->fetch_assoc();
-                $message = "Attendance of student with CMS ID " . $row["cms"] . " has already been marked!";
+                $message = "Attendence of student with CMS ID " . $row["cms"] . " has already been marked!";
             }
             // If the user does not exist
             else {
@@ -54,7 +54,7 @@ if ($conn->connect_error) {
                 // If the insertion is successful
                 if ($conn->query($add)) {
                     // Generate the PDF file
-                    require_once('../TCPDF/tcpdf.php');
+                    require_once('TCPDF/tcpdf.php');
 
                     // Load the invoice template
                     $invoiceTemplate = file_get_contents('template.html');
@@ -73,18 +73,6 @@ if ($conn->connect_error) {
                     $pdfContent = $pdf->Output('', 'S'); // Get the PDF content as a string
 
                     $message = $name . ", your invoice has been generated!";
-
-                    // Prompt the user to download the file
-                    echo '
-                    <script>
-                        if (confirm("Do you want to download the invoice?")) {
-                            var link = document.createElement("a");
-                            link.href = "data:application/pdf;base64,' . base64_encode($pdfContent) . '";
-                            link.download = "invoice.pdf";
-                            link.click();
-                        }
-                    </script>
-                    ';
                 }
                 // If there is a technical error
                 else {
@@ -92,6 +80,22 @@ if ($conn->connect_error) {
                 }
             }
         }
+    }
+
+    // Check if download request is present
+    if (isset($_GET['download']) && $_GET['download'] == 'true') {
+        // Set the response headers to initiate the file download
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: attachment; filename="invoice.pdf"');
+        header('Content-Length: ' . strlen($pdfContent));
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+
+        // Output the PDF content
+        echo $pdfContent;
+
+        exit;
     }
 }
 ?>
@@ -148,6 +152,11 @@ if ($conn->connect_error) {
       margin:0;
 
     }
+    .buttons {
+      width:100%;
+      display: flex;
+      justify-content: space-evenly;
+    }
   </style>
 </head>
 <body>
@@ -157,7 +166,10 @@ if ($conn->connect_error) {
     <!-- Display the success message and "Mark Another" button -->
     <div class="again">
       <h4><?php echo $message; ?></h4>
-      <button onclick="location.href = 'process.php';">Mark Another</button>
+      <div class="buttons">
+        <button onclick="location.href = 'process.php';">Mark Another</button>
+        <button onclick="location.href = '?download=true';">Download Invoice</button>
+      </div>
     </div>
   <?php } ?>
 

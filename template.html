@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice</title>
+  <style>
+    /* CSS styles for the invoice template */
+    body {
+      font-family: Arial, sans-serif;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .invoice-details {
+      margin-bottom: 20px;
+    }
+    .invoice-details p {
+      margin: 5px 0;
+    }
+    .invoice-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    .invoice-table th,
+    .invoice-table td {
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+    .invoice-total {
+      text-align: right;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Invoice</h1>
+  
+  <div class="invoice-details">
+    <p><strong>Name:</strong> {{name}}</p>
+    <p><strong>Email:</strong> {{email}}</p>
+    <p><strong>CMS ID:</strong> {{cms}}</p>
+  </div>
+  
+  <table class="invoice-table">
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Add invoice item rows dynamically if needed -->
+      <tr>
+        <td>Item 1</td>
+        <td>1</td>
+        <td>$10.00</td>
+        <td>$10.00</td>
+      </tr>
+      <tr>
+        <td>Item 2</td>
+        <td>2</td>
+        <td>$15.00</td>
+        <td>$30.00</td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="3" class="invoice-total">Total</td>
+        <td>$40.00</td>
+      </tr>
+    </tfoot>
+  </table>
+</body>
+</html>
